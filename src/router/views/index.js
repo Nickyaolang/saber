@@ -74,6 +74,29 @@ export default [{
     component: () =>
       import( /* webpackChunkName: "views" */ '@/views/system/userinfo')
   }]
+},
+{
+  path: '/activity',
+  component: Layout,
+  redirect: '/activity',
+  children: [{
+    path: 'activitymode',
+    name: '活动模板',
+    meta: {
+      i18n: 'info'
+    },
+    component: () =>
+      import( /* webpackChunkName: "views" */ '@/views/activity/activitymode')
+  },
+  {
+    path: 'activit',
+    name: '活动',
+    meta: {
+      i18n: 'info'
+    },
+    component: () =>
+      import( /* webpackChunkName: "views" */ '@/views/activity/activity')
+  }]
 }, {
   path: '/work/process/leave',
   component: Layout,

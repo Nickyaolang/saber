@@ -2,10 +2,10 @@
  * 全局配置文件
  */
 export default {
-  title: "saber",
+  title: "nicky",
   logo: "S",
   key: 'saber',//配置主键,目前用于存储
-  indexTitle: 'Saber Admin',
+  indexTitle: 'nicky',
   clientId: 'saber', // 客户端id
   clientSecret: 'saber_secret', // 客户端密钥
   tenantMode: true, // 是否开启租户模式

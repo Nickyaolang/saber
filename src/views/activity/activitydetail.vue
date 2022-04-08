@@ -4,13 +4,13 @@
                :table-loading="loading"
                :data="data"
                :page="page"
-               @row-del="rowDel"
+               :permission="permissionList"
+               :before-open="beforeOpen"
                v-model="form"
                ref="crud"
-               :permission="permissionList"
                @row-update="rowUpdate"
                @row-save="rowSave"
-               :before-open="beforeOpen"
+               @row-del="rowDel"
                @search-change="searchChange"
                @search-reset="searchReset"
                @selection-change="selectionChange"
@@ -23,7 +23,7 @@
                    size="small"
                    icon="el-icon-delete"
                    plain
-                   v-if="permission.client_delete"
+                   v-if="permission.activitydetail_delete"
                    @click="handleDelete">删 除
         </el-button>
       </template>
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-  import {getList, getDetail, add, update, remove} from "@/api/system/client";
+  import {getList, getDetail, add, update, remove} from "@/api/activity/activitydetail";
   import {mapGetters} from "vuex";
 
   export default {
@@ -48,8 +48,7 @@
         },
         selectionList: [],
         option: {
-          height: 'auto',
-          index:true,
+          height:'auto',
           calcHeight: 30,
           tip: false,
           searchShow: true,
@@ -61,112 +60,74 @@
           dialogClickModal: false,
           column: [
             {
-              label: "应用id",
-              prop: "clientId",
-              search: true,
+              label: "id",
+              prop: "id",
               rules: [{
                 required: true,
-                message: "请输入客户端id",
+                message: "请输入id",
                 trigger: "blur"
               }]
             },
             {
-              label: "应用密钥",
-              prop: "clientSecret",
-              search: true,
+              label: "附件地址",
+              prop: "url",
               rules: [{
                 required: true,
-                message: "请输入客户端密钥",
+                message: "请输入附件地址",
                 trigger: "blur"
               }]
             },
             {
-              label: "授权类型",
-              prop: "authorizedGrantTypes",
-              value: "refresh_token,password,authorization_code",
+              label: "状态",
+              prop: "status",
               rules: [{
                 required: true,
-                message: "请输入授权类型",
+                message: "请输入状态",
                 trigger: "blur"
               }]
             },
             {
-              label: "授权范围",
-              prop: "scope",
-              value: "all",
+              label: "是否已删除",
+              prop: "isDeleted",
               rules: [{
                 required: true,
-                message: "请输入授权范围",
+                message: "请输入是否已删除",
                 trigger: "blur"
               }]
             },
             {
-              label: "令牌秒数",
-              prop: "accessTokenValidity",
-              type: "number",
-              value: 3600,
+              label: "创建人",
+              prop: "createUser",
               rules: [{
                 required: true,
-                message: "请输入令牌过期秒数",
+                message: "请输入创建人",
                 trigger: "blur"
               }]
             },
             {
-              label: "刷新秒数",
-              prop: "refreshTokenValidity",
-              type: "number",
-              value: 604800,
-              hide: true,
+              label: "创建时间",
+              prop: "createTime",
               rules: [{
                 required: true,
-                message: "请输入刷新令牌过期秒数",
+                message: "请输入创建时间",
                 trigger: "blur"
               }]
             },
             {
-              label: "回调地址",
-              prop: "webServerRedirectUri",
-              hide: true,
+              label: "最后更新人",
+              prop: "updateUser",
               rules: [{
                 required: true,
-                message: "请输入回调地址",
+                message: "请输入最后更新人",
                 trigger: "blur"
               }]
             },
             {
-              label: "资源集合",
-              prop: "resourceIds",
-              hide: true,
+              label: "最后更新时间",
+              prop: "updateTime",
               rules: [{
-                message: "请输入资源集合",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "权限",
-              prop: "authorities",
-              hide: true,
-              rules: [{
-                message: "请输入权限",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "自动授权",
-              prop: "autoapprove",
-              hide: true,
-              rules: [{
-                message: "请输入自动授权",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "附加说明",
-              hide: true,
-              prop: "additionalInformation",
-              span: 24,
-              rules: [{
-                message: "请输入附加说明",
+                required: true,
+                message: "请输入最后更新时间",
                 trigger: "blur"
               }]
             },
@@ -179,10 +140,10 @@
       ...mapGetters(["permission"]),
       permissionList() {
         return {
-          addBtn: this.vaildData(this.permission.client_add),
-          viewBtn: this.vaildData(this.permission.client_view),
-          delBtn: this.vaildData(this.permission.client_delete),
-          editBtn: this.vaildData(this.permission.client_edit)
+          addBtn: this.vaildData(this.permission.activitydetail_add, false),
+          viewBtn: this.vaildData(this.permission.activitydetail_view, false),
+          delBtn: this.vaildData(this.permission.activitydetail_delete, false),
+          editBtn: this.vaildData(this.permission.activitydetail_edit, false)
         };
       },
       ids() {
@@ -203,8 +164,8 @@
           });
           done();
         }, error => {
-          window.console.log(error);
           loading();
+          window.console.log(error);
         });
       },
       rowUpdate(row, index, done, loading) {
@@ -216,8 +177,8 @@
           });
           done();
         }, error => {
-          window.console.log(error);
           loading();
+          console.log(error);
         });
       },
       rowDel(row) {
@@ -236,23 +197,6 @@
               message: "操作成功!"
             });
           });
-      },
-      searchReset() {
-        this.query = {};
-        this.onLoad(this.page);
-      },
-      searchChange(params, done) {
-        this.query = params;
-        this.page.currentPage = 1;
-        this.onLoad(this.page, params);
-        done();
-      },
-      selectionChange(list) {
-        this.selectionList = list;
-      },
-      selectionClear() {
-        this.selectionList = [];
-        this.$refs.crud.toggleSelection();
       },
       handleDelete() {
         if (this.selectionList.length === 0) {
@@ -284,10 +228,27 @@
         }
         done();
       },
-      currentChange(currentPage) {
+      searchReset() {
+        this.query = {};
+        this.onLoad(this.page);
+      },
+      searchChange(params, done) {
+        this.query = params;
+        this.page.currentPage = 1;
+        this.onLoad(this.page, params);
+        done();
+      },
+      selectionChange(list) {
+        this.selectionList = list;
+      },
+      selectionClear() {
+        this.selectionList = [];
+        this.$refs.crud.toggleSelection();
+      },
+      currentChange(currentPage){
         this.page.currentPage = currentPage;
       },
-      sizeChange(pageSize) {
+      sizeChange(pageSize){
         this.page.pageSize = pageSize;
       },
       refreshChange() {
