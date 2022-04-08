@@ -19,298 +19,354 @@
                @refresh-change="refreshChange"
                @on-load="onLoad">
       <template slot="menuLeft">
-        <el-button type="danger"
-                   size="small"
-                   icon="el-icon-delete"
-                   plain
-                   v-if="permission.activity_delete"
-                   @click="handleDelete">删 除
-        </el-button>
+<!--        <el-button type="danger"-->
+<!--                   size="small"-->
+<!--                   icon="el-icon-delete"-->
+<!--                   plain-->
+<!--                   @click="handleDelete">删 除-->
+<!--        </el-button>-->
       </template>
     </avue-crud>
   </basic-container>
 </template>
 
 <script>
-  import {getList, getDetail, add, update, remove} from "@/api/activity/activity";
-  import {mapGetters} from "vuex";
+import {getList, getDetail, add, update, remove} from "@/api/activity/activity";
+import {mapGetters} from "vuex";
 
-  export default {
-    data() {
+export default {
+  data() {
+    return {
+      form: {},
+      query: {},
+      loading: true,
+      page: {
+        pageSize: 10,
+        currentPage: 1,
+        total: 0
+      },
+      selectionList: [],
+      option: {
+        selectRow: '',
+        indexLabel: '序号',
+        align: 'center',
+        rowKey: "",
+        selection: false,
+        height: 'auto',
+        calcHeight: 30,
+        tip: false,
+        searchShow: true,
+        searchMenuSpan: 6,
+        border: true,
+        index: false,
+        viewBtn: true,
+        dialogClickModal: false,
+        column: [
+          {
+            label: "id",
+            prop: "id",
+            addDisplay: false,
+            editDisplay: false,
+            hide: true,
+            rules: [{
+              required: true,
+              message: "请输入id",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "活动名称",
+            prop: "activityName",
+            search: true,
+            rules: [{
+              required: true,
+              message: "请输入活动名称",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "活动地点",
+            prop: "activityAddress",
+            rules: [{
+              required: true,
+              message: "请输入活动地点",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "活动时间",
+            prop: "activityTime",
+            type: "date",
+            rules: [{
+              required: true,
+              message: "请输入活动时间",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "支付方式",
+            prop: "paymentMethod",
+            type: "radio",
+            dicData: [
+              {
+                label: "AA付款",
+                value: 1
+              },
+              {
+                label: "选择付款",
+                value: 2
+              }
+            ],
+            rules: [{
+              required: true,
+              message: "请选择支付方式",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "活动描述",
+            overHidden: true,
+            type:"textarea",
+            prop: "activityDescription",
+            rules: [{
+              required: true,
+              message: "请输入活动描述",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "活动原因",
+            prop: "activityCase",
+            type:"textarea",
+            overHidden: true,
+            rules: [{
+              required: true,
+              message: "请输入活动原因",
+              trigger: "blur"
+            }]
+          },
+
+          {
+            label: "状态",
+            prop: "status",
+            addDisplay: false,
+            editDisplay: false,
+            type: "radio",
+            dicData: [
+              {
+                label: "未开始",
+                value: 1
+              },
+              {
+                label: "已开始",
+                value: 2
+              },
+              {
+                label: "已结束",
+                value: 3
+              }
+            ],
+            rules: [{
+              required: true,
+              message: "请选择支付方式",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "是否已删除",
+            hide: true,
+            prop: "isDeleted",
+            addDisplay: false,
+            editDisplay: false,
+            rules: [{
+              required: true,
+              message: "请输入是否已删除",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "创建人",
+            addDisplay: false,
+            editDisplay: false,
+            prop: "createUserName",
+            overHidden: true,
+            rules: [{
+              required: true,
+              message: "请输入活动时间",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "创建时间",
+            addDisplay: false,
+            editDisplay: false,
+            prop: "createTime",
+            rules: [{
+              required: true,
+              message: "请输入创建时间",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "最后更新人",
+            addDisplay: false,
+            editDisplay: false,
+            hide: true,
+            prop: "updateUser",
+            rules: [{
+              required: true,
+              message: "请输入最后更新人",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "最后更新时间",
+            addDisplay: false,
+            editDisplay: false,
+            hide: true,
+            prop: "updateTime",
+            rules: [{
+              required: true,
+              message: "请输入最后更新时间",
+              trigger: "blur"
+            }]
+          },
+
+        ]
+      },
+      data: []
+    };
+  },
+  computed: {
+    ...mapGetters(["permission"]),
+    permissionList() {
       return {
-        form: {},
-        query: {},
-        loading: true,
-        page: {
-          pageSize: 10,
-          currentPage: 1,
-          total: 0
-        },
-        selectionList: [],
-        option: {
-          height:'auto',
-          calcHeight: 30,
-          tip: false,
-          searchShow: true,
-          searchMenuSpan: 6,
-          border: true,
-          index: true,
-          viewBtn: true,
-          selection: true,
-          dialogClickModal: false,
-          column: [
-            {
-              label: "id",
-              prop: "id",
-              rules: [{
-                required: true,
-                message: "请输入id",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "活动名称",
-              prop: "activityName",
-              rules: [{
-                required: true,
-                message: "请输入活动名称",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "活动地点",
-              prop: "activityAddress",
-              rules: [{
-                required: true,
-                message: "请输入活动地点",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "活动时间",
-              prop: "activityTime",
-              rules: [{
-                required: true,
-                message: "请输入活动时间",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "活动描述",
-              prop: "activityDescription",
-              rules: [{
-                required: true,
-                message: "请输入活动描述",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "活动原因",
-              prop: "activityCase",
-              rules: [{
-                required: true,
-                message: "请输入活动原因",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "状态",
-              prop: "status",
-              rules: [{
-                required: true,
-                message: "请输入状态",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "是否已删除",
-              prop: "isDeleted",
-              rules: [{
-                required: true,
-                message: "请输入是否已删除",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "创建人",
-              prop: "createUser",
-              rules: [{
-                required: true,
-                message: "请输入创建人",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "创建时间",
-              prop: "createTime",
-              rules: [{
-                required: true,
-                message: "请输入创建时间",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "最后更新人",
-              prop: "updateUser",
-              rules: [{
-                required: true,
-                message: "请输入最后更新人",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "最后更新时间",
-              prop: "updateTime",
-              rules: [{
-                required: true,
-                message: "请输入最后更新时间",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "支付方式",
-              prop: "paymentMethod",
-              rules: [{
-                required: true,
-                message: "请输入支付方式",
-                trigger: "blur"
-              }]
-            },
-          ]
-        },
-        data: []
+        addBtn: this.vaildData(this.permission.activity_add, true),
+        viewBtn: this.vaildData(this.permission.activity_view, true),
+        delBtn: this.vaildData(this.permission.activity_delete, true),
+        editBtn: this.vaildData(this.permission.activity_edit, true)
       };
     },
-    computed: {
-      ...mapGetters(["permission"]),
-      permissionList() {
-        return {
-          addBtn: this.vaildData(this.permission.activity_add, false),
-          viewBtn: this.vaildData(this.permission.activity_view, false),
-          delBtn: this.vaildData(this.permission.activity_delete, false),
-          editBtn: this.vaildData(this.permission.activity_edit, false)
-        };
-      },
-      ids() {
-        let ids = [];
-        this.selectionList.forEach(ele => {
-          ids.push(ele.id);
-        });
-        return ids.join(",");
-      }
-    },
-    methods: {
-      rowSave(row, done, loading) {
-        add(row).then(() => {
-          this.onLoad(this.page);
-          this.$message({
-            type: "success",
-            message: "操作成功!"
-          });
-          done();
-        }, error => {
-          loading();
-          window.console.log(error);
-        });
-      },
-      rowUpdate(row, index, done, loading) {
-        update(row).then(() => {
-          this.onLoad(this.page);
-          this.$message({
-            type: "success",
-            message: "操作成功!"
-          });
-          done();
-        }, error => {
-          loading();
-          console.log(error);
-        });
-      },
-      rowDel(row) {
-        this.$confirm("确定将选择数据删除?", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            return remove(row.id);
-          })
-          .then(() => {
-            this.onLoad(this.page);
-            this.$message({
-              type: "success",
-              message: "操作成功!"
-            });
-          });
-      },
-      handleDelete() {
-        if (this.selectionList.length === 0) {
-          this.$message.warning("请选择至少一条数据");
-          return;
-        }
-        this.$confirm("确定将选择数据删除?", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            return remove(this.ids);
-          })
-          .then(() => {
-            this.onLoad(this.page);
-            this.$message({
-              type: "success",
-              message: "操作成功!"
-            });
-            this.$refs.crud.toggleSelection();
-          });
-      },
-      beforeOpen(done, type) {
-        if (["edit", "view"].includes(type)) {
-          getDetail(this.form.id).then(res => {
-            this.form = res.data.data;
-          });
-        }
-        done();
-      },
-      searchReset() {
-        this.query = {};
-        this.onLoad(this.page);
-      },
-      searchChange(params, done) {
-        this.query = params;
-        this.page.currentPage = 1;
-        this.onLoad(this.page, params);
-        done();
-      },
-      selectionChange(list) {
-        this.selectionList = list;
-      },
-      selectionClear() {
-        this.selectionList = [];
-        this.$refs.crud.toggleSelection();
-      },
-      currentChange(currentPage){
-        this.page.currentPage = currentPage;
-      },
-      sizeChange(pageSize){
-        this.page.pageSize = pageSize;
-      },
-      refreshChange() {
-        this.onLoad(this.page, this.query);
-      },
-      onLoad(page, params = {}) {
-        this.loading = true;
-        getList(page.currentPage, page.pageSize, Object.assign(params, this.query)).then(res => {
-          const data = res.data.data;
-          this.page.total = data.total;
-          this.data = data.records;
-          this.loading = false;
-          this.selectionClear();
-        });
-      }
+    ids() {
+      let ids = [];
+      this.selectionList.forEach(ele => {
+        ids.push(ele.id);
+      });
+      return ids.join(",");
     }
-  };
+  },
+  methods: {
+    rowSave(row, done, loading) {
+      add(row).then(() => {
+        this.onLoad(this.page);
+        this.$message({
+          type: "success",
+          message: "操作成功!"
+        });
+        done();
+      }, error => {
+        loading();
+        window.console.log(error);
+      });
+    },
+    rowUpdate(row, index, done, loading) {
+      update(row).then(() => {
+        this.onLoad(this.page);
+        this.$message({
+          type: "success",
+          message: "操作成功!"
+        });
+        done();
+      }, error => {
+        loading();
+        console.log(error);
+      });
+    },
+    rowDel(row) {
+      this.$confirm("确定将选择数据删除?", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          return remove(row.id);
+        })
+        .then(() => {
+          this.onLoad(this.page);
+          this.$message({
+            type: "success",
+            message: "操作成功!"
+          });
+        });
+    },
+    handleDelete() {
+      if (this.selectionList.length === 0) {
+        this.$message.warning("请选择至少一条数据");
+        return;
+      }
+      this.$confirm("确定将选择数据删除?", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          return remove(this.ids);
+        })
+        .then(() => {
+          this.onLoad(this.page);
+          this.$message({
+            type: "success",
+            message: "操作成功!"
+          });
+          this.$refs.crud.toggleSelection();
+        });
+    },
+    beforeOpen(done, type) {
+      if (["edit", "view"].includes(type)) {
+        getDetail(this.form.id).then(res => {
+          this.form = res.data.data;
+        });
+      }
+      done();
+    },
+    searchReset() {
+      this.query = {};
+      this.onLoad(this.page);
+    },
+    searchChange(params, done) {
+      this.query = params;
+      this.page.currentPage = 1;
+      this.onLoad(this.page, params);
+      done();
+    },
+    selectionChange(list) {
+      this.selectionList = list;
+    },
+    selectionClear() {
+      this.selectionList = [];
+      this.$refs.crud.toggleSelection();
+    },
+    currentChange(currentPage) {
+      this.page.currentPage = currentPage;
+    },
+    sizeChange(pageSize) {
+      this.page.pageSize = pageSize;
+    },
+    refreshChange() {
+      this.onLoad(this.page, this.query);
+    },
+    onLoad(page, params = {}) {
+      this.loading = true;
+      getList(page.currentPage, page.pageSize, Object.assign(params, this.query)).then(res => {
+        const data = res.data.data;
+        this.page.total = data.total;
+        this.data = data.records;
+        this.loading = false;
+        this.selectionClear();
+      });
+    }
+  }
+};
 </script>
 
 <style>
