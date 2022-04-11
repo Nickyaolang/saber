@@ -11,6 +11,7 @@
                @row-update="rowUpdate"
                @row-save="rowSave"
                @row-del="rowDel"
+               @row-click="begin"
                @search-change="searchChange"
                @search-reset="searchReset"
                @selection-change="selectionChange"
@@ -19,25 +20,32 @@
                @refresh-change="refreshChange"
                @on-load="onLoad">
       <template slot="menuLeft">
-<!--        <el-button type="danger"-->
-<!--                   size="small"-->
-<!--                   icon="el-icon-delete"-->
-<!--                   plain-->
-<!--                   @click="handleDelete">删 除-->
-<!--        </el-button>-->
+        <!--        <el-button type="danger"-->
+        <!--                   size="small"-->
+        <!--                   icon="el-icon-delete"-->
+        <!--                   plain-->
+        <!--                   @click="handleDelete">删 除-->
+        <!--        </el-button>-->
       </template>
+
     </avue-crud>
   </basic-container>
+
 </template>
 
+
 <script>
-import {getList, getDetail, add, update, remove} from "@/api/activity/activity";
+import {getList, getDetail, add, update, remove, begin} from "@/api/activity/activity";
 import {mapGetters} from "vuex";
+import AvueMap from 'avue-plugin-map'
 
 export default {
   data() {
     return {
-      form: {},
+      form: {
+        map: [113.10235504165291, 41.03624227495205, "内蒙古自治区乌兰察布市集宁区新体路街道顺达源广告传媒"]
+      },
+      // form: {},
       query: {},
       loading: true,
       page: {
@@ -55,11 +63,12 @@ export default {
         height: 'auto',
         calcHeight: 30,
         tip: false,
+        stripe: true,
         searchShow: true,
         searchMenuSpan: 6,
         border: true,
-        index: false,
-        viewBtn: true,
+        index: true,
+        viewBtn: false,
         dialogClickModal: false,
         column: [
           {
@@ -85,21 +94,35 @@ export default {
             }]
           },
           {
-            label: "活动地点",
-            prop: "activityAddress",
-            rules: [{
-              required: true,
-              message: "请输入活动地点",
-              trigger: "blur"
-            }]
-          },
-          {
             label: "活动时间",
             prop: "activityTime",
+            valueFormat: 'yyyy-MM-dd HH:mm',
             type: "date",
             rules: [{
               required: true,
               message: "请输入活动时间",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "活动描述",
+            overHidden: true,
+            type: "textarea",
+            prop: "activityDescription",
+            rules: [{
+              required: true,
+              message: "请输入活动描述",
+              trigger: "blur"
+            }]
+          },
+          {
+            label: "活动原因",
+            prop: "activityCase",
+            type: "textarea",
+            overHidden: true,
+            rules: [{
+              required: true,
+              message: "请输入活动原因",
               trigger: "blur"
             }]
           },
@@ -124,31 +147,26 @@ export default {
             }]
           },
           {
-            label: "活动描述",
+            label: "活动地点",
             overHidden: true,
-            type:"textarea",
-            prop: "activityDescription",
+            prop: "activityAddress",
+            component: "avueMap",
             rules: [{
               required: true,
-              message: "请输入活动描述",
+              message: "",
               trigger: "blur"
-            }]
-          },
-          {
-            label: "活动原因",
-            prop: "activityCase",
-            type:"textarea",
-            overHidden: true,
-            rules: [{
-              required: true,
-              message: "请输入活动原因",
-              trigger: "blur"
-            }]
+            }],
+            value: {
+              "formattedAddress": "",
+              "longitude": '',
+              "latitude": ''
+            },
           },
 
           {
-            label: "状态",
+            label: "活动状态",
             prop: "status",
+            search: true,
             addDisplay: false,
             editDisplay: false,
             type: "radio",
@@ -158,12 +176,15 @@ export default {
                 value: 1
               },
               {
-                label: "已开始",
+                label: "待开始",
                 value: 2
+              }, {
+                label: "已开始",
+                value: 3
               },
               {
                 label: "已结束",
-                value: 3
+                value: 4
               }
             ],
             rules: [{
@@ -257,6 +278,7 @@ export default {
   },
   methods: {
     rowSave(row, done, loading) {
+      row.activityAddress = row.activityAddress.formattedAddress;
       add(row).then(() => {
         this.onLoad(this.page);
         this.$message({
@@ -270,6 +292,7 @@ export default {
       });
     },
     rowUpdate(row, index, done, loading) {
+      row.activityAddress = row.activityAddress.formattedAddress;
       update(row).then(() => {
         this.onLoad(this.page);
         this.$message({
@@ -364,6 +387,28 @@ export default {
         this.loading = false;
         this.selectionClear();
       });
+    }
+    , begin(row, event, column) {
+      if (row.status != 1) {
+        // this.$message.info("该活动已开始或已结束！")
+        return;
+      }
+      var msg = "确定开始:" + row.activityName + "活动吗?";
+      this.$confirm(msg, {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          return begin(row.id);
+        })
+        .then(() => {
+          this.onLoad(this.page);
+          this.$message({
+            type: "success",
+            message: "操作成功!"
+          });
+        });
     }
   }
 };

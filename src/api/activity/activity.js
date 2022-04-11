@@ -39,12 +39,20 @@ export const add = (row) => {
     data: row
   })
 }
-
 export const update = (row) => {
   return request({
     url: '/api/blade-activity/activity/submit',
     method: 'post',
     data: row
+  })
+}
+export const begin = (id) => {
+  return request({
+    url: '/api/blade-activity/activity/begin',
+    method: 'post',
+    params: {
+      id,
+    }
   })
 }
 

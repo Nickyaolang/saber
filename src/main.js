@@ -21,7 +21,9 @@ import basicContainer from './components/basic-container/main'
 import thirdRegister from './components/third-register/main'
 import avueUeditor from 'avue-plugin-ueditor';
 import website from '@/config/website';
+import AvueMap from 'avue-plugin-map'
 
+Vue.use(AvueMap);
 Vue.use(router);
 Vue.use(VueAxios, axios);
 Vue.use(Element, {

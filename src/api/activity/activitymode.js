@@ -32,6 +32,16 @@ export const remove = (ids) => {
   })
 }
 
+export const usermode = (id) => {
+  return request({
+    url: '/api/blade-activity-mode/activitymode/usermode',
+    method: 'post',
+    params: {
+      id,
+    }
+  })
+}
+
 export const add = (row) => {
   return request({
     url: '/api/blade-activity-mode/activitymode/submit',

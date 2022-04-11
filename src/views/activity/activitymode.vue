@@ -18,13 +18,20 @@
                @size-change="sizeChange"
                @refresh-change="refreshChange"
                @on-load="onLoad">
-      <template slot="menuLeft">
-        <el-button type="danger"
-                   size="small"
-                   icon="el-icon-delete"
-                   plain
-                   v-if="permission.activitymode_delete"
-                   @click="handleDelete">删 除
+      <!--      <template slot="menuLeft">-->
+      <!--        <el-button type="danger"-->
+      <!--                   size="small"-->
+      <!--                   icon="el-icon-delete"-->
+      <!--                   plain-->
+      <!--                   v-if="permission.activitymode_delete"-->
+      <!--                   @click="handleDelete">删 除-->
+      <!--        </el-button>-->
+      <!--      </template>-->
+      <template slot-scope="scope" slot="menu">
+        <el-button
+          icon="el-icon-success"
+          size="small"
+          @click="usermode(scope.row)">使用模板
         </el-button>
       </template>
     </avue-crud>
@@ -32,7 +39,7 @@
 </template>
 
 <script>
-import {getList, getDetail, add, update, remove} from "@/api/activity/activitymode";
+import {getList, getDetail, add, update, remove, usermode} from "@/api/activity/activitymode";
 import {mapGetters} from "vuex";
 
 export default {
@@ -59,8 +66,9 @@ export default {
         searchShow: true,
         searchMenuSpan: 6,
         border: true,
-        index: false,
-        viewBtn: true,
+        stripe:true,
+        index: true,
+        viewBtn: false,
         dialogClickModal: false,
         column: [
           {
@@ -100,7 +108,7 @@ export default {
             label: "活动描述",
             prop: "activityDescription",
             overHidden: true,
-            type:"textarea",
+            type: "textarea",
             rules: [{
               required: true,
               message: "请输入活动描述",
@@ -109,7 +117,7 @@ export default {
           },
           {
             label: "活动原因",
-            type:"textarea",
+            type: "textarea",
             prop: "activityCase",
             overHidden: true,
             rules: [{
@@ -119,7 +127,10 @@ export default {
           },
           {
             label: "活动地点",
+            overHidden: true,
             prop: "address",
+            addDisplay: false,
+            component: "avueMap",
             rules: [{
               required: true,
               message: "请输入活动地点",
@@ -240,6 +251,7 @@ export default {
   },
   methods: {
     rowSave(row, done, loading) {
+      row.address = row.address.formattedAddress;
       add(row).then(() => {
         this.onLoad(this.page);
         this.$message({
@@ -253,6 +265,7 @@ export default {
       });
     },
     rowUpdate(row, index, done, loading) {
+      row.address = row.address.formattedAddress;
       update(row).then(() => {
         this.onLoad(this.page);
         this.$message({
@@ -264,6 +277,18 @@ export default {
         loading();
         console.log(error);
       });
+    },
+    usermode(row) {
+      return usermode(row.id).then(() => {
+        this.onLoad(this.page);
+        this.$message({
+          type: "success",
+          message: "操作成功!"
+        });
+      }, error => {
+        console.log(error);
+      });
+
     },
     rowDel(row) {
       this.$confirm("确定将选择数据删除?", {

@@ -97,7 +97,33 @@ export default [{
     component: () =>
       import( /* webpackChunkName: "views" */ '@/views/activity/activity')
   }]
-}, {
+},
+
+
+  {
+    path: '/friend',
+    component: Layout,
+    redirect: '/friend',
+    children: [{
+      path: 'friend',
+      name: '我的朋友',
+      meta: {
+        i18n: 'info'
+      },
+      component: () =>
+        import( /* webpackChunkName: "views" */ '@/views/friend/friend')
+    },
+      {
+        path: 'team',
+        name: '我的团队',
+        meta: {
+          i18n: 'info'
+        },
+        component: () =>
+          import( /* webpackChunkName: "views" */ '@/views/friend/team')
+      }]
+  },
+  {
   path: '/work/process/leave',
   component: Layout,
   redirect: '/work/process/leave/form',
