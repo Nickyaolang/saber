@@ -36,7 +36,7 @@ export default {
       list: [
         {
           name: "默认主题",
-          value: "default"
+          value: "theme-vip"
         },
         {
           name: "白色主题",

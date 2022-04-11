@@ -80,7 +80,7 @@ export default {
     submit: 'Login',
     userLogin: 'userLogin',
     phoneLogin: 'phoneLogin',
-    thirdLogin: 'thirdLogin',
+    // thirdLogin: 'thirdLogin',
     msgText: 'send code',
     msgSuccess: 'reissued code',
   },
