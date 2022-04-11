@@ -23,7 +23,7 @@
                    size="small"
                    icon="el-icon-delete"
                    plain
-                   v-if="permission.activitydetail_delete"
+                   v-if="permission.activityevaluate_delete"
                    @click="handleDelete">删 除
         </el-button>
       </template>
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-  import {getList, getDetail, add, update, remove} from "@/api/activity/activitydetail";
+  import {getList, getDetail, add, update, remove} from "@/api/activity/activityevaluate";
   import {mapGetters} from "vuex";
 
   export default {
@@ -60,29 +60,47 @@
           dialogClickModal: false,
           column: [
             {
-              label: "id",
+              label: "活动评价表id",
               prop: "id",
               rules: [{
                 required: true,
-                message: "请输入id",
+                message: "请输入活动评价表id",
                 trigger: "blur"
               }]
             },
             {
-              label: "状态（1、未开始 2、待开始 3、进行中 4、已结束）",
-              prop: "status",
+              label: "用户id",
+              prop: "userId",
               rules: [{
                 required: true,
-                message: "请输入状态（1、未开始 2、待开始 3、进行中 4、已结束）",
+                message: "请输入用户id",
                 trigger: "blur"
               }]
             },
             {
-              label: "本次费用",
-              prop: "money",
+              label: "活动id",
+              prop: "activityId",
               rules: [{
                 required: true,
-                message: "请输入本次费用",
+                message: "请输入活动id",
+                trigger: "blur"
+              }]
+            },
+            {
+              label: "父级id",
+              prop: "parentId",
+              rules: [{
+                required: true,
+                message: "请输入父级id",
+                trigger: "blur"
+              }]
+            },
+            {
+              label: "评价",
+              prop: "evaluate",
+              rules: [{
+                required: true,
+                message: "请输入评价",
                 trigger: "blur"
               }]
             },
@@ -140,10 +158,10 @@
       ...mapGetters(["permission"]),
       permissionList() {
         return {
-          addBtn: this.vaildData(this.permission.activitydetail_add, false),
-          viewBtn: this.vaildData(this.permission.activitydetail_view, false),
-          delBtn: this.vaildData(this.permission.activitydetail_delete, false),
-          editBtn: this.vaildData(this.permission.activitydetail_edit, false)
+          addBtn: this.vaildData(this.permission.activityevaluate_add, false),
+          viewBtn: this.vaildData(this.permission.activityevaluate_view, false),
+          delBtn: this.vaildData(this.permission.activityevaluate_delete, false),
+          editBtn: this.vaildData(this.permission.activityevaluate_edit, false)
         };
       },
       ids() {

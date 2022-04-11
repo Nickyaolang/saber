@@ -23,7 +23,7 @@
                    size="small"
                    icon="el-icon-delete"
                    plain
-                   v-if="permission.activitydetail_delete"
+                   v-if="permission.file_delete"
                    @click="handleDelete">删 除
         </el-button>
       </template>
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-  import {getList, getDetail, add, update, remove} from "@/api/activity/activitydetail";
+  import {getList, getDetail, add, update, remove} from "@/api/file/file";
   import {mapGetters} from "vuex";
 
   export default {
@@ -60,74 +60,38 @@
           dialogClickModal: false,
           column: [
             {
-              label: "id",
+              label: "主键",
               prop: "id",
               rules: [{
                 required: true,
-                message: "请输入id",
+                message: "请输入主键",
                 trigger: "blur"
               }]
             },
             {
-              label: "状态（1、未开始 2、待开始 3、进行中 4、已结束）",
-              prop: "status",
+              label: "外键",
+              prop: "foreignId",
               rules: [{
                 required: true,
-                message: "请输入状态（1、未开始 2、待开始 3、进行中 4、已结束）",
+                message: "请输入外键",
                 trigger: "blur"
               }]
             },
             {
-              label: "本次费用",
-              prop: "money",
+              label: "类别（1、活动）",
+              prop: "category",
               rules: [{
                 required: true,
-                message: "请输入本次费用",
+                message: "请输入类别（1、活动）",
                 trigger: "blur"
               }]
             },
             {
-              label: "是否已删除",
-              prop: "isDeleted",
+              label: "类型（1、视频2、图片3、文件）",
+              prop: "type",
               rules: [{
                 required: true,
-                message: "请输入是否已删除",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "创建人",
-              prop: "createUser",
-              rules: [{
-                required: true,
-                message: "请输入创建人",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "创建时间",
-              prop: "createTime",
-              rules: [{
-                required: true,
-                message: "请输入创建时间",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "最后更新人",
-              prop: "updateUser",
-              rules: [{
-                required: true,
-                message: "请输入最后更新人",
-                trigger: "blur"
-              }]
-            },
-            {
-              label: "最后更新时间",
-              prop: "updateTime",
-              rules: [{
-                required: true,
-                message: "请输入最后更新时间",
+                message: "请输入类型（1、视频2、图片3、文件）",
                 trigger: "blur"
               }]
             },
@@ -140,10 +104,10 @@
       ...mapGetters(["permission"]),
       permissionList() {
         return {
-          addBtn: this.vaildData(this.permission.activitydetail_add, false),
-          viewBtn: this.vaildData(this.permission.activitydetail_view, false),
-          delBtn: this.vaildData(this.permission.activitydetail_delete, false),
-          editBtn: this.vaildData(this.permission.activitydetail_edit, false)
+          addBtn: this.vaildData(this.permission.file_add, false),
+          viewBtn: this.vaildData(this.permission.file_view, false),
+          delBtn: this.vaildData(this.permission.file_delete, false),
+          editBtn: this.vaildData(this.permission.file_edit, false)
         };
       },
       ids() {
