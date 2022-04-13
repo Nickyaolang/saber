@@ -53,7 +53,7 @@ router.beforeEach((to, from, next) => {
   } else {
     //判断是否需要认证，没有登录访问去登录页
     if (meta.isAuth === false) {
-      next()
+      next('/')
     } else {
       next('/login')
     }

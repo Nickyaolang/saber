@@ -11,6 +11,17 @@ export default [{
     isAuth: false
   }
 },
+{
+  path: '/',
+  name: '首页',
+  component: () =>
+    import( /* webpackChunkName: "page" */ '@/page/index1/index1'),
+  meta: {
+    keepAlive: true,
+    isTab: false,
+    isAuth: false
+  }
+},
   {
     path: '/lock',
     name: '锁屏页',
